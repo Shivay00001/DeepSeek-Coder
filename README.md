@@ -1,298 +1,87 @@
-<p align="center">
-<img width="1000px" alt="DeepSeek Coder" src="pictures/logo.png">
-</p>
-<p align="center"><a href="https://www.deepseek.com/">[<img src="pictures/home.png" width="20px"> Homepage]</a> | <a href="https://chat.deepseek.com/">[🤖 Chat with DeepSeek Coder]</a> | <a href="https://huggingface.co/deepseek-ai">[🤗 Models Download]</a> | <a href="https://discord.gg/Tc7c45Zzu5">[Discord]</a> | <a href="https://github.com/guoday/assert/blob/main/QR.png?raw=true">[WeChat (微信)]</a></p>
-<p align="center">
-  <a href="https://huggingface.co/papers/2401.14196"><b>Paper Link</b>👁️</a>
-</p>
-<hr>
+# DeepSeek Coder
 
+> Open-source code-focused language model repository with training, evaluation, demo tooling, and fine-tuning support.
 
-### 1. Introduction of DeepSeek Coder
+[![License](https://img.shields.io/badge/license-Code%20%26%20Model%20Licenses-green)](./LICENSE-CODE)
+[![Python](https://img.shields.io/badge/Python-3.8%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Status](https://img.shields.io/badge/status-open%20research-orange)](https://github.com/Shivay00001/DeepSeek-Coder)
 
-DeepSeek Coder is composed of a series of code language models, each trained from scratch on 2T tokens, with a composition of 87% code and 13% natural language in both English and Chinese. We provide various sizes of the code model, ranging from 1B to 33B versions. Each model is pre-trained on project-level code corpus by employing a window size of 16K and an extra fill-in-the-blank task, to support project-level code completion and infilling. For coding capabilities, DeepSeek Coder achieves state-of-the-art performance among open-source code models on multiple programming languages and various benchmarks.
+This repository provides code and supporting assets for DeepSeek-Coder, a code-focused language model project that includes model assets, evaluation materials, demo tooling, and fine-tuning scripts. The codebase is designed to support coding use cases such as coding assistance, code generation, completion, and targeted downstream adaptation.
 
-<p align="center">
-<img src="pictures/result.png" alt="result" width="70%">
-</p>
+The repository is structured around a clear separation between:
 
-- **Massive Training Data**: Trained from scratch on 2T tokens, including 87% code and 13% linguistic data in both English and Chinese languages.
+- model and code licensing terms
+- training / fine-tuning workflows
+- evaluation materials
+- demonstration resources
 
-- **Highly Flexible & Scalable**: Offered in model sizes of 1B, 5.7B, 6.7B and 33B, enabling users to choose the setup most suitable for their requirements.
+This project is best approached as a technical research and model-development repository, with explicit attention to license terms before commercial or production deployment.
 
-- **Superior Model Performance**: State-of-the-art performance among publicly available code models on HumanEval, MultiPL-E, MBPP, DS-1000, and APPS benchmarks.
+## What is included
 
-- **Advanced Code Completion Capabilities**: A window size of 16K and a fill-in-the-blank task, supporting project-level code completion and infilling tasks.
+- code-model repository structure for a DeepSeek Coder family project
+- example fine-tuning scripts for downstream tasks
+- evaluation assets and benchmarking materials
+- demo assets and example usage paths
+- supporting requirements for local training and experimentation
 
-#### Supported Programming Languages
-`['ada', 'agda', 'alloy', 'antlr', 'applescript', 'assembly', 'augeas', 'awk', 'batchfile', 'bluespec', 'c', 'c-sharp', 'clojure', 'cmake', 'coffeescript', 'common-lisp', 'cpp', 'css', 'cuda', 'dart', 'dockerfile', 'elixir', 'elm', 'emacs-lisp', 'erlang', 'f-sharp', 'fortran', 'glsl', 'go', 'groovy', 'haskell', 'html', 'idris', 'isabelle', 'java', 'java-server-pages', 'javascript', 'json', 'julia', 'jupyter-notebook', 'kotlin', 'lean', 'literate-agda', 'literate-coffeescript', 'literate-haskell', 'lua', 'makefile', 'maple', 'markdown', 'mathematica', 'matlab', 'ocaml', 'pascal', 'perl', 'php', 'powershell', 'prolog', 'protocol-buffer', 'python', 'r', 'racket', 'restructuredtext', 'rmarkdown', 'ruby', 'rust', 'sas', 'scala', 'scheme', 'shell', 'smalltalk', 'solidity', 'sparql', 'sql', 'stan', 'standard-ml', 'stata', 'systemverilog', 'tcl', 'tcsh', 'tex', 'thrift', 'typescript', 'verilog', 'vhdl', 'visual-basic', 'xslt', 'yacc', 'yaml', 'zig']`
+## Repository layout
 
-### 2. Evaluation Results
-We evaluate DeepSeek Coder on various coding-related benchmarks.
-Only `pass@1` results on HumanEval (Python and Multilingual), MBPP, and DS-1000 are reported here:
-
-<p align="center">
-<img src="pictures/table.png" alt="table" width="70%">
-</p>
-
-
-The result shows that DeepSeek-Coder-Base-33B significantly outperforms existing open-source code LLMs. Compared with CodeLlama-34B, it leads by 7.9%, 9.3%, 10.8% and 5.9% respectively on HumanEval Python, HumanEval Multilingual, MBPP and DS-1000.
-Surprisingly, our DeepSeek-Coder-Base-7B reaches the performance of CodeLlama-34B.
-The DeepSeek-Coder-Instruct-33B model after instruction tuning outperforms GPT35-turbo on HumanEval and achieves comparable results with GPT35-turbo on MBPP.
-
-More evaluation details can be found in the [Detailed Evaluation](#6-detailed-evaluation-results).
-
-
-### 3. Procedure of Data Creation and Model Training
-
-#### Data Creation
-
-- Step 1: Collect code data from GitHub and apply the same filtering rules as [StarCoder Data](https://github.com/bigcode-project/bigcode-dataset) to filter data.
-- Step 2: Parsing the dependencies of files within the same repository to rearrange the file positions based on their dependencies.
-- Step 3: Concatenating dependent files to form a single example and employ repo-level minhash for deduplication.
-- Step 4: Further filtering out low-quality code, such as codes with syntax errors or poor readability.
-
-<img src="pictures/data_clean.png" alt="data_creation" width="100%">
-
-#### Model Training
-
-- Step 1: Initially pre-trained with a dataset consisting of 87% code, 10% code-related language (Github Markdown and StackExchange), and 3% non-code-related Chinese language. Models are pre-trained using 1.8T tokens and a 4K window size in this step.
-- Step 2: Further Pre-training using an extended 16K window size on an additional 200B tokens, resulting in foundational models (**DeepSeek-Coder-Base**).
-- Step 3: Instruction Fine-tuning on 2B tokens of instruction data, resulting in instruction-tuned models (**DeepSeek-Coder-Instruct**).
-
-<img src="pictures/model_pretraining.png" alt="model_pretraining" width="100%">
-
-
-### 4. How to Use
-Before proceeding, you'll need to install the necessary dependencies. You can do this by running the following command:
-```
-pip install -r requirements.txt
-```
-A demo is also available on the [🤗 Hugging Face Space](https://huggingface.co/spaces/deepseek-ai/deepseek-coder-33b-instruct), and you can run the demo locally using `app.py` in the [demo](https://github.com/deepseek-ai/deepseek-coder/tree/main/demo) folder.  (Thanks to all the HF team for their support)
-
-Here are some examples of how to use our model.
-
-#### 1) Code Completion
-```python
-from transformers import AutoTokenizer, AutoModelForCausalLM
-import torch
-tokenizer = AutoTokenizer.from_pretrained("deepseek-ai/deepseek-coder-6.7b-base", trust_remote_code=True)
-model = AutoModelForCausalLM.from_pretrained("deepseek-ai/deepseek-coder-6.7b-base", trust_remote_code=True, torch_dtype=torch.bfloat16).cuda()
-input_text = "#write a quick sort algorithm"
-inputs = tokenizer(input_text, return_tensors="pt").to(model.device)
-outputs = model.generate(**inputs, max_length=128)
-print(tokenizer.decode(outputs[0], skip_special_tokens=True))
-```
-This code will output the following result:
-```
-def quick_sort(arr):
-    if len(arr) <= 1:
-        return arr
-    pivot = arr[0]
-    left = []
-    right = []
-    for i in range(1, len(arr)):
-        if arr[i] < pivot:
-            left.append(arr[i])
-        else:
-            right.append(arr[i])
-    return quick_sort(left) + [pivot] + quick_sort(right)
+```text
+DeepSeek-Coder/
+├── README.md                # Project overview and usage guidance
+├── LICENSE-CODE             # Code license
+├── LICENSE-MODEL            # Model license
+├── requirements.txt         # Python dependencies for training workflows
+├── Evaluation/              # Benchmarking / evaluation assets
+├── demo/                   # Demo and showcase materials
+├── finetune/               # Fine-tuning guidance and scripts
+├── pictures/               # Visual assets / examples
+└── .gitignore              # Git ignore rules
 ```
 
-#### 2) Code Insertion
-```python
-from transformers import AutoTokenizer, AutoModelForCausalLM
-import torch
-tokenizer = AutoTokenizer.from_pretrained("deepseek-ai/deepseek-coder-6.7b-base", trust_remote_code=True)
-model = AutoModelForCausalLM.from_pretrained("deepseek-ai/deepseek-coder-6.7b-base", trust_remote_code=True, torch_dtype=torch.bfloat16).cuda()
-input_text = """<｜fim▁begin｜>def quick_sort(arr):
-    if len(arr) <= 1:
-        return arr
-    pivot = arr[0]
-    left = []
-    right = []
-<｜fim▁hole｜>
-        if arr[i] < pivot:
-            left.append(arr[i])
-        else:
-            right.append(arr[i])
-    return quick_sort(left) + [pivot] + quick_sort(right)<｜fim▁end｜>"""
-inputs = tokenizer(input_text, return_tensors="pt").to(model.device)
-outputs = model.generate(**inputs, max_length=128)
-print(tokenizer.decode(outputs[0], skip_special_tokens=True)[len(input_text):])
-```
-This code will output the following result:
-```
-   for i in range(1, len(arr)):
-```
+## Model and licensing
 
-#### 3) Chat Model Inference
-```python
-from transformers import AutoTokenizer, AutoModelForCausalLM
-import torch
-tokenizer = AutoTokenizer.from_pretrained("deepseek-ai/deepseek-coder-6.7b-instruct", trust_remote_code=True)
-model = AutoModelForCausalLM.from_pretrained("deepseek-ai/deepseek-coder-6.7b-instruct", trust_remote_code=True, torch_dtype=torch.bfloat16).cuda()
-messages=[
-    { 'role': 'user', 'content': "write a quick sort algorithm in python."}
-]
-inputs = tokenizer.apply_chat_template(messages, add_generation_prompt=True, return_tensors="pt").to(model.device)
-# tokenizer.eos_token_id is the id of <|EOT|> token
-outputs = model.generate(inputs, max_new_tokens=512, do_sample=False, top_k=50, top_p=0.95, num_return_sequences=1, eos_token_id=tokenizer.eos_token_id)
-print(tokenizer.decode(outputs[0][len(inputs[0]):], skip_special_tokens=True))
-```
-This code will output the following result:
-```
-Sure, here is a simple implementation of the Quick Sort algorithm in Python:
+The repository includes two separate license files:
 
-def quick_sort(arr):
-    if len(arr) <= 1:
-        return arr
-    else:
-        pivot = arr[0]
-        less_than_pivot = [x for x in arr[1:] if x <= pivot]
-        greater_than_pivot = [x for x in arr[1:] if x > pivot]
-        return quick_sort(less_than_pivot) + [pivot] + quick_sort(greater_than_pivot)
+- `LICENSE-CODE`: governs the code in this repository
+- `LICENSE-MODEL`: governs the model weights and related model artifacts
 
-# Test the function
-arr = [10, 7, 8, 9, 1, 5]
-print("Original array:", arr)
-print("Sorted array:", quick_sort(arr))
+Before using the project in production, commercial workflows, or large-scale deployments, read both licenses carefully and confirm the appropriate usage permissions for your scenario.
 
-This code works by selecting a 'pivot' element from the array and partitioning the other elements into two sub-arrays, according to whether they are less than or greater than the pivot. The pivot element is then in its final position. The process is then repeated for the sub-arrays.
-```
+## Quick start
 
-If you don't want to use the provided API `apply_chat_template` which loads the template from `tokenizer_config.json`, you can use the following template to chat with our model. Replace the `['content']` with your instructions and the model's previous (if any) responses, then the model will generate the response to the currently given instruction.
-```
-You are an AI programming assistant, utilizing the DeepSeek Coder model, developed by DeepSeek Company, and you only answer questions related to computer science. For politically sensitive questions, security and privacy issues, and other non-computer science questions, you will refuse to answer.
-### Instruction:
-['content']
-### Response:
-['content']
-<|EOT|>
-### Instruction:
-['content']
-### Response:
+### Prerequisites
 
-```
+- Python 3.8+
+- A compatible deep learning environment
+- Optional: GPU-enabled setup for fine-tuning
+- Optional: DeepSpeed for distributed training workflows
 
-#### 4) Repository Level Code Completion
-```python
-from transformers import AutoTokenizer, AutoModelForCausalLM
-import torch
-tokenizer = AutoTokenizer.from_pretrained("deepseek-ai/deepseek-coder-6.7b-base", trust_remote_code=True)
-model = AutoModelForCausalLM.from_pretrained("deepseek-ai/deepseek-coder-6.7b-base", trust_remote_code=True, torch_dtype=torch.bfloat16).cuda()
-
-input_text = """#utils.py
-import torch
-from sklearn import datasets
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import accuracy_score
-
-def load_data():
-    iris = datasets.load_iris()
-    X = iris.data
-    y = iris.target
-
-    # Standardize the data
-    scaler = StandardScaler()
-    X = scaler.fit_transform(X)
-
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
-
-    # Convert numpy data to PyTorch tensors
-    X_train = torch.tensor(X_train, dtype=torch.float32)
-    X_test = torch.tensor(X_test, dtype=torch.float32)
-    y_train = torch.tensor(y_train, dtype=torch.int64)
-    y_test = torch.tensor(y_test, dtype=torch.int64)
-
-    return X_train, X_test, y_train, y_test
-
-def evaluate_predictions(y_test, y_pred):
-    return accuracy_score(y_test, y_pred)
-
-
-# model.py
-import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import DataLoader, TensorDataset
-
-class IrisClassifier(nn.Module):
-    def __init__(self):
-        super(IrisClassifier, self).__init__()
-        self.fc = nn.Sequential(
-            nn.Linear(4, 16),
-            nn.ReLU(),
-            nn.Linear(16, 3)
-        )
-
-    def forward(self, x):
-        return self.fc(x)
-
-    def train_model(self, X_train, y_train, epochs, lr, batch_size):
-        criterion = nn.CrossEntropyLoss()
-        optimizer = optim.Adam(self.parameters(), lr=lr)
-
-        # Create DataLoader for batches
-        dataset = TensorDataset(X_train, y_train)
-        dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
-
-        for epoch in range(epochs):
-            for batch_X, batch_y in dataloader:
-                optimizer.zero_grad()
-                outputs = self(batch_X)
-                loss = criterion(outputs, batch_y)
-                loss.backward()
-                optimizer.step()
-
-    def predict(self, X_test):
-        with torch.no_grad():
-            outputs = self(X_test)
-            _, predicted = outputs.max(1)
-        return predicted.numpy()
-
-
-# main.py
-from utils import load_data, evaluate_predictions
-from model import IrisClassifier as Classifier
-
-def main():
-    # Model training and evaluation
-"""
-inputs = tokenizer(input_text, return_tensors="pt").to(model.device)
-outputs = model.generate(**inputs, max_new_tokens=140)
-print(tokenizer.decode(outputs[0]))
-```
-
----
-In the following scenario, the DeepSeek-Coder-6.7B model effectively calls a class **IrisClassifier** and its member function from the `model.py` file, and also utilizes functions from the `utils.py` file, to correctly complete the **main** function in the `main.py` file for model training and evaluation.
-
-![Completion GIF](pictures/completion_demo.gif)
-
-### 5. How to Fine-tune DeepSeek-Coder
-
-We provide script `finetune/finetune_deepseekcoder.py` for users to finetune our models on downstream tasks.
-
-The script supports the training with [DeepSpeed](https://github.com/microsoft/DeepSpeed). You need install required packages by:
+### Install dependencies
 
 ```bash
-pip install -r finetune/requirements.txt
+pip install -r requirements.txt
 ```
 
-Please follow [Sample Dataset Format](https://huggingface.co/datasets/nickrosh/Evol-Instruct-Code-80k-v1) to prepare your training data.
-Each line is a json-serialized string with two required fields `instruction` and `output`.
+### Fine-tuning overview
 
-After data preparation, you can use the sample shell script to finetune `deepseek-ai/deepseek-coder-6.7b-instruct`. 
-Remember to specify `DATA_PATH`, `OUTPUT_PATH`.
-And please choose appropriate hyper-parameters(e.g., `learning_rate`, `per_device_train_batch_size`) according to your scenario.
+The repository includes a dedicated fine-tuning workflow in `finetune/`.
+
+```bash
+cd finetune
+```
+
+The included documentation explains how to prepare a JSONL-style dataset where each line contains a serialized object with the required fields `instruction` and `output`, then run a training script using DeepSpeed.
+
+Example flow:
 
 ```bash
 DATA_PATH="<your_data_path>"
 OUTPUT_PATH="<your_output_path>"
-MODEL="deepseek-ai/deepseek-coder-6.7b-instruct"
+MODEL_PATH="deepseek-ai/deepseek-coder-6.7b-instruct"
 
-cd finetune && deepspeed finetune_deepseekcoder.py \
+deepspeed finetune_deepseekcoder.py \
     --model_name_or_path $MODEL_PATH \
     --data_path $DATA_PATH \
     --output_dir $OUTPUT_PATH \
@@ -315,128 +104,140 @@ cd finetune && deepspeed finetune_deepseekcoder.py \
     --bf16 True
 ```
 
-### 6. Detailed Evaluation Results
+## Fine-tuning guidance
 
-The reproducible code for the following evaluation results can be found in the [Evaluation](https://github.com/deepseek-ai/deepseek-coder/tree/main/Evaluation) directory.
-#### 1) Multilingual HumanEval Benchmark
-![HumanEval](pictures/HumanEval.png)
+The repo explicitly supports downstream task adaptation through a supervised fine-tuning process. This is useful when the model needs to be specialized for a narrow domain, programming style, or internal tooling workflow.
 
-#### 2) MBPP Benchmark
-<img src="pictures/MBPP.png" alt="MBPP" width="40%">
+Typical fine-tuning goals include:
 
-#### 3) DS-1000 Benchmark
-![DS-1000](pictures/DS-1000.png)
+- project-specific code generation
+- internal API assistance
+- domain-aware coding workflows
+- custom coding-agent behavior
+- more consistent output for named tasks
 
-#### 4) Program-Aid Math Reasoning Benchmark
-![Math](pictures/Math.png)
+## Evaluation and benchmarking
 
-### Inference with vLLM
+The `Evaluation/` directory indicates a benchmark-oriented workflow and suggests the project was designed with systematic evaluation in mind. This is important for research and production-suitable development, because model quality should be judged with repeatable evaluation setups rather than subjective impressions alone.
 
-You can also employ [vLLM](https://github.com/vllm-project/vllm) for high-throughput inference.
+Recommended evaluation dimensions:
 
-**Text Completion**
+- code correctness
+- completion quality
+- instruction-following capability
+- security sensitivity of generated code
+- task-specific benchmark scores
+- hallucination and confidence failures
 
-```python
-from vllm import LLM, SamplingParams
+## Production-readiness assessment
 
-tp_size = 4 # Tensor Parallelism
-sampling_params = SamplingParams(temperature=0.7, top_p=0.9, max_tokens=100)
-model_name = "deepseek-ai/deepseek-coder-6.7b-base"
-llm = LLM(model=model_name, trust_remote_code=True, gpu_memory_utilization=0.9, tensor_parallel_size=tp_size)
+### Current maturity: **research and model-development repository**
 
-prompts = [
-    "If everyone in a country loves one another,",
-    "The research should also focus on the technologies",
-    "To determine if the label is correct, we need to"
-]
-outputs = llm.generate(prompts, sampling_params)
+This repository is highly useful for technical exploration, experiments, and code-model adaptation. It is not a turnkey application and should not be treated as a drop-in production product without validation.
 
-generated_text = [output.outputs[0].text for output in outputs]
-print(generated_text)
-```
+### Strengths
 
-**Chat Completion**
+- clear model-development scope
+- fine-tuning support and reproducible scripts
+- benchmarking and demo assets included
+- licensing structure is explicit and important for downstream use
+- practical code-focused orientation aligns with real developer workflows
 
-```python
-from transformers import AutoTokenizer
-from vllm import LLM, SamplingParams
+### Risks to address before broader production deployment
 
-tp_size = 4 # Tensor Parallelism
-sampling_params = SamplingParams(temperature=0.7, top_p=0.9, max_tokens=100)
-model_name = "deepseek-ai/deepseek-coder-6.7b-instruct"
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-llm = LLM(model=model_name, trust_remote_code=True, gpu_memory_utilization=0.9, tensor_parallel_size=tp_size)
+1. Validate model performance on your exact use case and dataset.
+2. Review prompt and output safety pipelines before exposing the model to end users.
+3. Check model and code licensing terms for commercial or enterprise usage.
+4. Build robust evaluation gating before deployment decisions.
+5. Add sampling, cost-control, and output moderation policies for production use.
+6. Ensure any fine-tuned model is traceable and versioned with the right dataset and evaluation record.
+7. Audit training pipelines for security, reproducibility, and dependency drift.
 
-messages_list = [
-    [{"role": "user", "content": "Who are you?"}],
-    [{"role": "user", "content": "What can you do?"}],
-    [{"role": "user", "content": "Explain Transformer briefly."}],
-]
-prompts = [tokenizer.apply_chat_template(messages, add_generation_prompt=True, tokenize=False) for messages in messages_list]
+## Monetization pathways
 
-sampling_params.stop = [tokenizer.eos_token]
-outputs = llm.generate(prompts, sampling_params)
+Although this repo is primarily model-focused, it supports several commercialization strategies depending on licensing and operational scope.
 
-generated_text = [output.outputs[0].text for output in outputs]
-print(generated_text)
-```
+| Model | Offer | Best fit |
+| --- | --- | --- |
+| Open model distribution | Self-hosted or direct use of a trained/fine-tuned model | Researchers and developers |
+| Fine-tuning services | Domain-specific model adaptation and training | Enterprises and teams |
+| API wrapper service | Hosted code-generation endpoint | Developer tools and SaaS teams |
+| Model evaluation platform | Benchmarking and comparison tooling | Enterprise QA and platform teams |
+| Private deployment | Internal model deployment with custom tuning | Security-sensitive organizations |
+| Consulting / implementation | Custom LLM integration for coding workflows | Large engineering organizations |
+| Enterprise support | Setup, guardrails, deployment, and compliance work | Regulated users |
 
-### 7. Q&A
+### Commercial guidance
 
-#### Could You Provide the tokenizer.model File for Model Quantization?
+- Treat the code and model licensing as separate legal layers.
+- Confirm the exact permitted use for your project before charging for access or distribution.
+- Package deployment, support, and retention policies separately from the underlying model repository.
+- If using this project for business-critical code generation, validate outputs with human review and system checks.
 
-DeepSeek Coder utilizes the [HuggingFace Tokenizer](https://huggingface.co/docs/tokenizers/index) to implement the Bytelevel-BPE algorithm, with specially designed pre-tokenizers to ensure optimal performance. Currently, there is no direct way to convert the tokenizer into a SentencePiece tokenizer. We are contributing to the open-source quantization methods facilitate the usage of HuggingFace Tokenizer.
+## Search and GitHub discoverability
 
-##### GGUF(llama.cpp)
+This repository is discoverable through terms such as:
 
-We have submitted a [PR](https://github.com/ggerganov/llama.cpp/pull/4070) to the popular quantization repository [llama.cpp](https://github.com/ggerganov/llama.cpp) to fully support all HuggingFace pre-tokenizers, including ours.
+- DeepSeek Coder
+- code LLM
+- coding model fine-tuning
+- fine-tune DeepSeek Coder
+- code generation model
+- LLM for software engineering
+- open-source code model
 
-While waiting for the PR to be merged, you can generate your GGUF model using the following steps:
+To improve project visibility:
 
-```bash
-git clone https://github.com/DOGEwbx/llama.cpp.git
-cd llama.cpp
-git checkout regex_gpt2_preprocess
-# set up the environment according to README
-make
-python3 -m pip install -r requirements.txt
-# generate GGUF model
-python convert-hf-to-gguf.py <MODEL_PATH> --outfile <GGUF_PATH> --model-name deepseekcoder
-# use q4_0 quantization as an example
-./quantize <GGUF_PATH> <OUTPUT_PATH> q4_0
-./main -m <OUTPUT_PATH> -n 128 -p <PROMPT>
-```
-##### GPTQ(exllamav2)
+- keep a short, precise repo description
+- document usage and training steps clearly
+- include domain-specific model examples
+- add benchmark results and sample outputs
+- use a clean README structure with practical commands
+- avoid overclaiming quality without reproducible evaluation evidence
 
-`UPDATE:`[exllamav2](https://github.com/turboderp/exllamav2) has been able to support Huggingface Tokenizer. Please pull the latest version and try out.
+## Security and safe use
 
-Remember to set RoPE scaling to 4 for correct output, more discussion could be found in this [PR](https://github.com/turboderp/exllamav2/pull/189).
+Model deployments need guardrails:
 
-#### How to use the deepseek-coder-instruct to complete the code?
+- validate generated code before shipping it to production
+- review for security issues, secrets leakage, or unsafe patterns
+- maintain governance over data sent to the model
+- avoid training on sensitive proprietary data without legal review
+- treat model outputs as assistive suggestions, not ground truth
+- keep evaluation and deployment pipelines auditable
 
-Although the deepseek-coder-instruct models are not specifically trained for code completion tasks during supervised fine-tuning (SFT), they retain the capability to perform code completion effectively. To enable this functionality, you simply need to adjust the eos_token_id parameter. Set the eos_token_id to 32014, as opposed to its default value of 32021 in the deepseek-coder-instruct configuration. This modification prompts the model to recognize the end of a sequence differently, thereby facilitating code completion tasks.
+## Roadmap
 
+- [ ] Publish clearer end-to-end setup instructions for local deployment
+- [ ] Add stronger benchmarking and reproducibility documentation
+- [ ] Document supported hardware and training configuration assumptions
+- [ ] Improve evaluation reports for code correctness and safety
+- [ ] Add a standard deployment guide for inference workflows
+- [ ] Capture fine-tuning recipes for common domains
+- [ ] Provide a template for enterprise compliance and model governance
 
-### 8. Resources
-[awesome-deepseek-coder](https://github.com/deepseek-ai/awesome-deepseek-coder) is a curated list of open-source projects related to DeepSeek Coder.
+## Contributing
 
-### 9. License
-This code repository is licensed under the MIT License. The use of DeepSeek Coder models is subject to the Model License. DeepSeek Coder supports commercial use.
+Contributions should focus on:
 
-See the [LICENSE-CODE](LICENSE-CODE) and [LICENSE-MODEL](LICENSE-MODEL) for more details.
+1. improving documentation and onboarding
+2. adding reproducible evaluation workflows
+3. improving training scripts and configuration quality
+4. clarifying model and code license use
+5. improving safety and evaluation checks
+6. making local inference and fine-tuning easier for developers
 
-### 10. Citation
-```
-@misc{deepseek-coder,
-  author = {Daya Guo, Qihao Zhu, Dejian Yang, Zhenda Xie, Kai Dong, Wentao Zhang, Guanting Chen, Xiao Bi, Y. Wu, Y.K. Li, Fuli Luo, Yingfei Xiong, Wenfeng Liang},
-  title = {DeepSeek-Coder: When the Large Language Model Meets Programming -- The Rise of Code Intelligence},
-  journal = {CoRR},
-  volume = {abs/2401.14196},
-  year = {2024},
-  url = {https://arxiv.org/abs/2401.14196},
-}
-```
+## License
 
-### 11. Contact
+This repository contains multiple licensing layers and both should be reviewed with equal care:
 
-If you have any questions, please raise an issue or contact us at [service@deepseek.com](mailto:service@deepseek.com).
+- [LICENSE-CODE](./LICENSE-CODE)
+- [LICENSE-MODEL](./LICENSE-MODEL)
+
+Use the license files as the authoritative sources for rights, restrictions, and commercial use conditions.
+
+## Links
+
+- [Repository](https://github.com/Shivay00001/DeepSeek-Coder)
+- [Evaluation](https://github.com/Shivay00001/DeepSeek-Coder/tree/main/Evaluation)
+- [Fine-tuning docs](https://github.com/Shivay00001/DeepSeek-Coder/tree/main/finetune)
