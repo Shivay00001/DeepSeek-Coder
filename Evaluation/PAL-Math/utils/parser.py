@@ -102,7 +102,7 @@ def strip_string(string):
 
     # remove percentage
     string = string.replace("\\%", "")
-    string = string.replace("\%", "")
+    string = string.replace(r"\%", "")
     string = string.replace("%", "")
 
     # " 0." equivalent to " ." and "{0." equivalent to "{." Alternatively, add "0" if "." is the start of the string
@@ -186,7 +186,7 @@ def extract_answer(pred_str):
         # fall back to program
         pred = extract_program_output(pred_str)
     else: # use the last number
-        pattern = '-?\d*\.?\d+'
+        pattern = r'-?\d*\.?\d+'
         pred = re.findall(pattern, pred_str.replace(",", ""))
         if(len(pred) >= 1):
             pred = pred[-1]
