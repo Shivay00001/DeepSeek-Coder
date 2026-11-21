@@ -1,5 +1,7 @@
 # DeepSeek Coder
 
+Built by [VisionQuantech](https://visionquantech.com) — AI agents, apps & tools for small businesses.
+
 > Open-source code-focused language model repository with training, evaluation, demo tooling, and fine-tuning support.
 
 [![License](https://img.shields.io/badge/license-Code%20%26%20Model%20Licenses-green)](./LICENSE-CODE)
